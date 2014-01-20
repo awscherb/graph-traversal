@@ -8,29 +8,34 @@ import java.util.Queue;
 public class Node<T> {
 
     /** Data of this node */
-    T data;
+    private T data;
     /** List of neighbors */
-    List<Node<T>> neighbors;
+    private List<Node<T>> neighbors;
     
     /** Parent node of this node */
     private Node<T> parent;
 
     /** Public constructor */
-    Node(T t) {
+    public Node(T t) {
         neighbors = new ArrayList<Node<T>>();
         data = t;
         parent = null;
     }
 
-    /** Add the given node, update this node and given node neighbor list */
+    /** Connect this node to the given node */
     public void addNeighbor(Node<T> n) {
-        this.neighbors.add(n);
-        n.neighbors.add(this);
+        addNeighborHelper(n);
+        n.addNeighborHelper(this);
+    }
+    
+    /** Add the given node to our neighbor list */
+    private void addNeighborHelper(Node<T> n) {
+        neighbors.add(n);
     }
 
     /** Return the immediate neighbors of this node */
     public List<Node<T>> getNeighbors() {
-        return this.neighbors;
+        return neighbors;
     }
 
     /**
@@ -39,27 +44,7 @@ public class Node<T> {
      * @return true if a path exists
      */
     public boolean hasPathTo(Node<T> n) {
-        Queue<Node<T>> queue = new LinkedList<Node<T>>();
-        Queue<Node<T>> seen = new LinkedList<Node<T>>();
-        
-        queue.add(this);
-        seen.add(this);
-        
-        while (! queue.isEmpty()) {
-            Node<T> t = queue.poll();
-            if (t.equals(n)) {
-                return true;
-            }
-            
-            for (Node<T> a : t.neighbors) {
-                if (! (seen.contains(a))) {
-                    a.parent = t;
-                    seen.add(a);
-                    queue.add(a);
-                }
-            }
-        }
-        return false;      
+        return getPathTo(n) != null;
     }
     
     /**
@@ -77,7 +62,7 @@ public class Node<T> {
         while (! queue.isEmpty()) {
             Node<T> t = queue.poll();
             if (t.equals(n)) {
-                return this.getParentPath(t);
+                return getParentPath(t);
             }
             
             for (Node<T> a : t.neighbors) {
